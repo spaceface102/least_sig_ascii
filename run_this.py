@@ -5,27 +5,38 @@ import sys
 import numpy as np
 import random
 
-def get_message():
-	return getpass(prompt = "Enter Message: ")
 
-def find_file():
-	pass
+default_write_file = "write.txt"
+default_read_file = "read.txt"
 
-def randchars(file_handle = None):
-	'''file_handle needs to be able to write/append bytes'''
-	mes_bytes = bytes(get_message, encoding = "utf8")
-	mes_bits = np.unpackbits(np.array(list(mes_bytes), 'u1'))
-	zeros = mes_bits == 0
-	ones = mes_bits == 1
-	out_bytes = mes_bits #just changing name
-	out_bytes[zeros] = random.choice(asciiallow[0])
-	out_bytes[ones] = random.choices(asciiallow[1])
-	if file_handle:
-		file_handle.write(out_bytes)
-	else:
-		f = open("randchars.txt", "wb")
+def get_message(prompt = "Enter Message: "):
+	getpass(prompt = prompt)
+	mes_bytes = bytes(get_message(), encoding = "utf8")
+	mes_bits = np.unpackbits(np.array(list(mes_bytes), dtype = 'u1'))
+	return mes_bits
+
+def randchars_encode(data_bits, f_name = default_write_file):
+	'''f_name by default is defined by default_file_name'''
+	out_bytes = [random.choice(asciiallow[bit]) for bit in mes_bits]
+	out_bytes = np.array(out_bytes, dtype = 'u1')
+	with open(f_name, "wb") as f:
 		f.write(out_bytes)
 
+def randchars_decode(f_name = default_read_file):
+	pass
+
+def main():
+	sys_accept_args = {
+	"encode" : {"encode", "e", "enc"}, 
+	"decode" : {"decode", "d", "dec"}, 
+	"output" : {"o", "out","output", "name", "fname"}]
+	sys_define_args = {
+	"encode" : False, "decode" : False,
+	"output" : [d
+
+
+
+randchars_encode(f_name = "newnew.txt")
 
 if __name__ == "__main__":
 	if len(sys.argv) == 1:
