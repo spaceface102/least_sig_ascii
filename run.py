@@ -9,7 +9,7 @@ class ascii_map:
 	'''Take in input as bytes and map each bit of every byte 
 	to a new byte that whose least significant bit is the same'''
 	def __init__(self):
-		self.nameread = "stdout.txt"
+		self.nameread = "stdin.txt"
 		self.namewrite = "stdout.txt"
 		self.bytes = None
 		self.encoded = None
@@ -24,8 +24,8 @@ class ascii_map:
 			npbytes = np.array(list(f.read()), dtype = 'u1')
 		self.bytes = npbytes
 
-	def write_file_bytes(self, data):
-		"data should either be self.decoded or self.encoded"
+	def write_file_bytes(self):
+		data = self.encoded if self.encoded else self.decoded
 		with open(self.namewrite, "wb") as f:
 			f.write(data)
 
@@ -42,21 +42,46 @@ class ascii_map:
 	
 	def change_writename(self, fname):
 		self.namewrite = fname
+	
+	def change_both(self, readname, writename):
+		self.change_readname(readname)
+		self.change_writename(writename)
 
-def handleargs():
+	def default(self):
+		self.get_message()
+		self.randbytes_encode()
+		self.write_file_bytes()
+	
+	def encode_a_file(self, readf = self.nameread, writef = self.namewrite):
+		self.change_both(readf, writef)
+		self.read_file_bytes()
+		self.randbytes_encode()
+		self.write_file_bytes()
+		self.encoded = None #cleanup
+
+	def decode_a_file(self, readf = self.nameread, writef = self.namewrite)
+		self.change_both(readf, writef)
+		self.read_file_bytes()
+		self.randbytes_decode()
+		self.write_file_bytes()
+		self.decoded = None #cleanup
+
+def handle_args():
 	args = [arg.replace("-", "") for arg in argv[1:]]
 	accept_args = [ {"encode", "e", "enc"}, #0
  					{"decode", "d", "dec"}, #1
  					{"output", "o", "out"} ]#2 
+
 	decode_encode_count = output_count = i = 0
 	while i < len(args):
 		for j, accept in enumerate(accept_args):
 			if args[i] in accept:
 				decode_encode_count += int(j == 0 or j == 1)
 				output_count += int(j == 2)
-		if decode_encode_count > 1 and decode_encode_count != output_count:
-			print("Please define an output for each encode and decode!")
+	if decode_encode_count > 1 and decode_encode_count != output_count:
+		print("Please define an output for each encode and decode!")
 			#else use default output self.nameread/write	
 		decode_encode_count = output_count = 0
 
 if __name__ == "__main__":
+	pass
