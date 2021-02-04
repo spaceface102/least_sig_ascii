@@ -12,8 +12,6 @@ class ascii_map:
 		self.nameread = "stdin.txt"
 		self.namewrite = "stdout.txt"
 		self.bytes = None
-		self.encoded = None
-		self.decoded = None
 
 	def get_message(self, prompt = "Enter Message: ", encoding = "utf-8"):
 		mess_bytes = bytes(getpass(prompt = prompt), encoding = encoding)
@@ -25,63 +23,58 @@ class ascii_map:
 		self.bytes = npbytes
 
 	def write_file_bytes(self):
-		data = self.encoded if self.encoded else self.decoded
 		with open(self.namewrite, "wb") as f:
-			f.write(data)
+			f.write(self.bytes)
 
 	def randbytes_encode(self):
-		self.encoded = np.unpackbits(self.bytes)
-		for i, bit in enumerate(self.encoded):
-			self.encoded[i] = choice(asciiallow[bit])
+		self.bytes = np.unpackbits(self.bytes)
+		for i, bit in enumerate(self.bytes):
+			self.bytes[i] = choice(asciiallow[bit])
 
 	def randbytes_decode(self):
-		self.decoded = np.packbits(self.bytes&1)
+		self.bytes = np.packbits(self.bytes&1)
 
 	def change_readname(self, fname):
 		self.nameread = fname
 	
 	def change_writename(self, fname):
 		self.namewrite = fname
-	
-	def change_both(self, readname, writename):
-		self.change_readname(readname)
-		self.change_writename(writename)
 
 	def default(self):
 		self.get_message()
 		self.randbytes_encode()
 		self.write_file_bytes()
 	
-	def encode_a_file(self, readf = self.nameread, writef = self.namewrite):
-		self.change_both(readf, writef)
+	def encode_decode_a_file(self, e=False, d=False, read=None, out=None):
+		''''e' indicated encode, 'd' indicates decode, 'read' is 
+		read_file_name, 'out' is output file name'''
+		if read:
+			self.change_readname(read)
+		if out:
+			self.change_writename(out)
 		self.read_file_bytes()
-		self.randbytes_encode()
+		self.randbytes_encode() if e else self.randbytes_decode()
 		self.write_file_bytes()
-		self.encoded = None #cleanup
-
-	def decode_a_file(self, readf = self.nameread, writef = self.namewrite)
-		self.change_both(readf, writef)
-		self.read_file_bytes()
-		self.randbytes_decode()
-		self.write_file_bytes()
-		self.decoded = None #cleanup
+		self.encoded = self.decoded = None #cleanup
 
 def handle_args():
 	args = [arg.replace("-", "") for arg in argv[1:]]
-	accept_args = [ {"encode", "e", "enc"}, #0
- 					{"decode", "d", "dec"}, #1
- 					{"output", "o", "out"} ]#2 
-
-	decode_encode_count = output_count = i = 0
-	while i < len(args):
-		for j, accept in enumerate(accept_args):
-			if args[i] in accept:
-				decode_encode_count += int(j == 0 or j == 1)
-				output_count += int(j == 2)
-	if decode_encode_count > 1 and decode_encode_count != output_count:
-		print("Please define an output for each encode and decode!")
-			#else use default output self.nameread/write	
-		decode_encode_count = output_count = 0
+	encode = {"encode", "e", "enc"}
+	decode = {"decode", "d", "dec"}
+	output = {"output", "o", "out"} 
+	for i, arg in enumerate(args):
+		if arg in encode:
+			e = True
+			read = i + 1
+		elif arg in decode:
+			d = True
+			read = i + 1
+		elif arg in output:
+			out = args[i+1]
 
 if __name__ == "__main__":
-	pass
+	if len(argv) == 1:
+		base = ascii_map()
+		base.default()
+	else:
+		handle_args()
